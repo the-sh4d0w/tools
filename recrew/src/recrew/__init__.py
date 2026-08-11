@@ -1,6 +1,7 @@
 """Analyse 'The Crew: Mission Deep Sea' games from BGA."""
 
 import enum
+import importlib.metadata
 import typing
 
 import bs4
@@ -70,7 +71,16 @@ class Trick(pydantic.BaseModel):
     plays: list[Play] = []
 
 
+def project_version() -> str | None:
+    """Get project version."""
+    try:
+        importlib.metadata.version("recrew")
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
 @click.command()
+@click.version_option(version=project_version(), prog_name="recrew")
 @click.argument("table-id", type=int, required=True)
 @click.option("--player", "-p", type=str)
 @click.option("--card", "-c", type=str, multiple=True)
