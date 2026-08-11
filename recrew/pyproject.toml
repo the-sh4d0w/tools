@@ -1,0 +1,23 @@
+[project]
+name = "recrew"
+version = "1.3.2"
+description = "Analyse 'The Crew: Mission Deep Sea' games from BGA."
+readme = "README.md"
+authors = [
+    { name = "Sh4d0w", email = "contact@thesh4d0w.org" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "pydantic>=2.13.4",
+    "rich>=15.0.0",
+    "rich-click>=1.9.8",
+    "selenium>=4.47.0",
+]
+
+[project.scripts]
+recrew = "recrew:main"
+
+[build-system]
+requires = ["uv_build>=0.9.30,<0.10.0"]
+build-backend = "uv_build"
