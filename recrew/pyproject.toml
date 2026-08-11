@@ -1,6 +1,6 @@
 [project]
 name = "recrew"
-version = "1.4.0"
+version = "1.4.1"
 description = "Analyse 'The Crew: Mission Deep Sea' games from BGA."
 readme = "README.md"
 authors = [

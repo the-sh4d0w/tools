@@ -74,17 +74,17 @@ class Trick(pydantic.BaseModel):
 def project_version() -> str | None:
     """Get project version."""
     try:
-        importlib.metadata.version("recrew")
+        return importlib.metadata.version("recrew")
     except importlib.metadata.PackageNotFoundError:
         return None
 
 
 @click.command()
 @click.version_option(version=project_version(), prog_name="recrew")
-@click.argument("table-id", type=int, required=True)
-@click.option("--player", "-p", type=str)
-@click.option("--card", "-c", type=str, multiple=True)
-@click.option("--login", "-l", is_flag=True)
+@click.argument("table-id", type=int, required=True, help="Id of the BGA table.")
+@click.option("--player", "-p", type=str, help="BGA username of the player.")
+@click.option("--card", "-c", type=str, multiple=True, help="Cards in hand of player.")
+@click.option("--login", "-l", is_flag=True, help="Login to BGA to get hand cards of player.")
 def main(table_id: int, player: str, card: tuple[str], login: bool) -> None:
     """Read the log of a game of The Crew on BGA and extract as much information as possible.
     """
