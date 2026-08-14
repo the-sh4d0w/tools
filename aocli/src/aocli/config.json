@@ -1,0 +1,11 @@
+{
+    "domain": "adventofcode.com",
+    "session_path": "session.cookie",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+    "code_placeholders": [
+        {
+            "language": "python",
+            "code": "\"\"\"{title} ({url})\nCode for solving part {part_word}.\n\"\"\"\n\nimport pathlib\nimport typing\n\n\ndef solve(path: str) -> typing.Any:\n    \"\"\"Solve puzzle {day:02}-{part}.\n\n    Arguments:\n        - path: path to input.\n\n    Returns:\n        The solution.\n    \"\"\"\n    text = pathlib.Path(path).read_text(encoding=\"utf-8\")\n    return text\n\n\nif __name__ == \"__main__\":\n    print(\"example:\", solve(\"{day:02}/example{day:02}_{part}.txt\"))\n    print(\"input:\", solve(\"{day:02}/input{day:02}.txt\"))\n"
+        }
+    ]
+}
