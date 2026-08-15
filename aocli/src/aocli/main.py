@@ -5,6 +5,7 @@ import importlib.metadata
 import rich_click as click
 
 from aocli import PROJECT_NAME, CONFIG
+from aocli.commands import config
 from aocli.commands import setup
 
 
@@ -24,3 +25,4 @@ def main() -> None:
 
 
 main.add_command(setup.setup)
+main.add_command(config.config)
