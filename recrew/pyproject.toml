@@ -1,6 +1,6 @@
 [project]
 name = "recrew"
-version = "1.4.1"
+version = "1.5.0"
 description = "Analyse 'The Crew: Mission Deep Sea' games from BGA."
 readme = "README.md"
 authors = [
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-recrew = "recrew:main"
+recrew = "recrew.main:main"
 
 [build-system]
 requires = ["uv_build>=0.9.30,<0.10.0"]
