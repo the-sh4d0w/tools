@@ -14,20 +14,17 @@ import requests
 from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH
 
 
-# FIXME: won't work out of season because of the default values; make reasonable choices (or today)
-# -> highest available year
-# -> lowest (available) day that is not yet created
 @click.command()
 @click.option("--day", "-d", type=click.IntRange(0, 25), default=TODAY.day,
-              help="Day of advent of code.")
+              help="Day of Advent of Code.")
 @click.option("--year", "-y", type=click.IntRange(2015, TODAY.year), default=TODAY.year,
-              help="Year of advent of code.")
+              help="Year of Advent of Code.")
 @click.option("--part", "-p", type=click.IntRange(1, 2), default=1, help="Part of the task.")
 @click.option("--language", "-l", type=click.Choice([f.stem for f in PLACEHOLDER_PATH.iterdir()],
                                                     case_sensitive=False), default="python",
-              help="Programming language.")
+              help="Programming language for placeholder.")
 @click.option("--wait", "-w", is_flag=True, help="Wait until task is available.")
-@click.option("--notify", "-n", is_flag=True, help="Send ntfy notification when finished.")
+@click.option("--notify", "-n", is_flag=True, help="Send ntfy (https://ntfy.sh) notification when finished.")
 @click.option("--ntfy_url", type=str, show_default=True, default="http://olympus:1234/aoc",
               help="URL for ntfy.")
 @click.option("--force", "-f", is_flag=True, help="Force overwriting of output.")
@@ -35,7 +32,9 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
           force: str) -> None:
     """Set up a day of Advent of Code.
 
-    Automatically download files and create folder and files for a puzzle.
+    Automatically download example and input and create folder and placeholder file for a puzzle.
+
+    Default values for day and year are taken from today's date.
     """
     # wait until release of task; +30 seconds to prevent bug
     if wait and datetime.datetime(year, 12, day, 6) > datetime.datetime.now():
@@ -44,7 +43,8 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                 f"{datetime.datetime(year, 12, day, 6).astimezone().isoformat()}[/]..."):
             time.sleep((datetime.datetime(year, 12, day, 6)
                         - datetime.datetime.now()).total_seconds() + 30)
-    url = f"https://{CONFIG.domain}/{year}/day/{day}"
+    url = f"https://{CONFIG.domain.replace("https://", "").replace("http://", "")}" \
+        f"/{year}/day/{day}"
     file = pathlib.Path(CONFIG.session_path)
 
     # exit if session cookie file doesn't exist
@@ -88,7 +88,7 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                     for pre in soup.find_all("pre")]
         input_text = sess.get(f"{url}/input").text.strip()
 
-        # exit with error if part two not available
+        # exit with error if part two is not available
         if part == 2 and not "Part Two" in response.text:
             CONSOLE.print("[red]Error[/]: Part two is not yet available.")
             sys.exit(1)
@@ -109,6 +109,7 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
             PLACEHOLDER_PATH, encoding="utf-8"), keep_trailing_newline=True)
         puzzle_text: str = environment.get_template(
             f"{language}.j2").render(format_values)
+        # check if folder already exists or if we want to override
         if not pathlib.Path(f"{day:02}").exists() or force:
             pathlib.Path(f"{day:02}").mkdir(exist_ok=True)
             pathlib.Path(f"{day:02}/puzzle{day:02}_{part}.py").write_text(
@@ -130,6 +131,7 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                 ntfy_url, timeout=10,
                 data=f"Part {part} of {year}-12-{day:02} finished downloading.",
                 headers={"Title": "Advent of Code Setup (AoCLI)", "Tags": "christmas_tree"})
+            # check if notification was sent successfully
             assert response.status_code == 200 \
                 and response.json()["event"] == "message"
             CONSOLE.print("Sent notification.")
