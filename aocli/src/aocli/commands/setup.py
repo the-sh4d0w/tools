@@ -17,23 +17,22 @@ from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH
 # FIXME: won't work out of season because of the default values; make reasonable choices (or today)
 # -> highest available year
 # -> lowest (available) day that is not yet created
-# FIXME: force option
 @click.command()
-@click.option("-d", "--day", type=click.IntRange(0, 25), default=TODAY.day,
+@click.option("--day", "-d", type=click.IntRange(0, 25), default=TODAY.day,
               help="Day of advent of code.")
-@click.option("-y", "--year", type=click.IntRange(
-    2015, TODAY.year if TODAY.month == 12 else TODAY.year - 1), default=TODAY.year,
-    help="Year of advent of code.")
-@click.option("-p", "--part", type=click.IntRange(1, 2), default=1, help="Part of the task.")
-@click.option("-l", "--language", type=click.Choice([f.stem for f in PLACEHOLDER_PATH.iterdir()],
+@click.option("--year", "-y", type=click.IntRange(2015, TODAY.year), default=TODAY.year,
+              help="Year of advent of code.")
+@click.option("--part", "-p", type=click.IntRange(1, 2), default=1, help="Part of the task.")
+@click.option("--language", "-l", type=click.Choice([f.stem for f in PLACEHOLDER_PATH.iterdir()],
                                                     case_sensitive=False), default="python",
               help="Programming language.")
-@click.option("-w", "--wait", is_flag=True, help="Wait until task is available.")
-@click.option("-n", "--notify", is_flag=True, help="Send ntfy notification when finished.")
+@click.option("--wait", "-w", is_flag=True, help="Wait until task is available.")
+@click.option("--notify", "-n", is_flag=True, help="Send ntfy notification when finished.")
 @click.option("--ntfy_url", type=str, show_default=True, default="http://olympus:1234/aoc",
               help="URL for ntfy.")
-def setup(day: int, year: int, part: int, language: str, wait: bool, notify: bool, ntfy_url: str) \
-        -> None:
+@click.option("--force", "-f", is_flag=True, help="Force overwriting of output.")
+def setup(day: int, year: int, part: int, language: str, wait: bool, notify: bool, ntfy_url: str,
+          force: str) -> None:
     """Set up a day of Advent of Code.
 
     Automatically download files and create folder and files for a puzzle.
@@ -50,11 +49,11 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
 
     # exit if session cookie file doesn't exist
     if not file.exists():
-        CONSOLE.print(f"[red]Error[/]: the file '{CONFIG.session_path}' "
+        CONSOLE.print(f"[red]Error[/]: The file '{CONFIG.session_path}' "
                       "does not exist.")
         return
 
-    # get session token
+    # get session token; FIXME:
     session = file.read_text(encoding="utf-8").strip()
 
     try:
@@ -74,9 +73,11 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
         CONSOLE.print(f"Downloaded AoC day {day:02} "
                       f"in {time.monotonic() - start_time:.2}s.")
     except FileNotFoundError:
-        CONSOLE.print(f"[red]Error[/]: day {day} "
-                      "is not (yet) available.")
-        sys.exit(-1)
+        CONSOLE.print(f"[red]Error[/]: Day {day} is not (yet) available.")
+        if year >= 2025 and day > 12:
+            CONSOLE.print("[cyan]Hint[/]: Since 2025 only 12 days are "
+                          "available (https://adventofcode.com/about#faq_num_days).")
+        sys.exit(1)
 
     start_time = time.monotonic()
     with CONSOLE.status(f"Parsing AoC day {day:02}..."):
@@ -89,11 +90,10 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
 
         # exit with error if part two not available
         if part == 2 and not "Part Two" in response.text:
-            CONSOLE.print(
-                "[red]Error[/]: part two is not yet available.")
-            sys.exit(-1)
-        CONSOLE.print(
-            f"Parsed Aoc day {day:02} in {time.monotonic() - start_time:.2}s.")
+            CONSOLE.print("[red]Error[/]: Part two is not yet available.")
+            sys.exit(1)
+        CONSOLE.print("Parsed Aoc day "
+                      f"{day:02} in {time.monotonic() - start_time:.2}s.")
 
     start_time = time.monotonic()
     with CONSOLE.status("Creating folders and files..."):
@@ -107,20 +107,32 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
         }
         environment: jinja2.Environment = jinja2.Environment(loader=jinja2.FileSystemLoader(
             PLACEHOLDER_PATH, encoding="utf-8"), keep_trailing_newline=True)
-        puzzle_text: str = environment.get_template(f"{language}.j2").render(format_values)
-        pathlib.Path(f"{day:02}").mkdir(exist_ok=True)
-        pathlib.Path(f"{day:02}/puzzle{day:02}_{part}.py").write_text(
-            puzzle_text, encoding="utf-8")
-        pathlib.Path(f"{day:02}/example{day:02}_{part}.txt").write_text(
-            data=examples[part - 1 if len(examples) != 1 else 0], encoding="utf-8")
-        pathlib.Path(f"{day:02}/input{day:02}.txt").write_text(
-            data=input_text, encoding="utf-8")
-    CONSOLE.print("Created folders and files in "
-                  f"{time.monotonic() - start_time:.2}s.")
+        puzzle_text: str = environment.get_template(
+            f"{language}.j2").render(format_values)
+        if not pathlib.Path(f"{day:02}").exists() or force:
+            pathlib.Path(f"{day:02}").mkdir(exist_ok=True)
+            pathlib.Path(f"{day:02}/puzzle{day:02}_{part}.py").write_text(
+                puzzle_text, encoding="utf-8")
+            pathlib.Path(f"{day:02}/example{day:02}_{part}.txt").write_text(
+                data=examples[part - 1 if len(examples) != 1 else 0], encoding="utf-8")
+            pathlib.Path(f"{day:02}/input{day:02}.txt").write_text(
+                data=input_text, encoding="utf-8")
+            CONSOLE.print("Created folders and files in "
+                          f"{time.monotonic() - start_time:.2}s.")
+        else:
+            CONSOLE.print(f"[red]Error[/]: Folder {day:02} already exists.")
+            sys.exit(1)
 
     # send notification
     if notify:
-        CONSOLE.print("Sending notification...")
-        requests.post(ntfy_url, timeout=10,
-                      data=f"Part {part} of {year}-12-{day:02} finished downloading.",
-                      headers={"Title": "Advent of Code Setup", "Tags": "christmas_tree"})
+        try:
+            response: requests.Response = requests.post(
+                ntfy_url, timeout=10,
+                data=f"Part {part} of {year}-12-{day:02} finished downloading.",
+                headers={"Title": "Advent of Code Setup (AoCLI)", "Tags": "christmas_tree"})
+            assert response.status_code == 200 \
+                and response.json()["event"] == "message"
+            CONSOLE.print("Sent notification.")
+        except requests.RequestException, AssertionError:
+            CONSOLE.print("[red]Error[/]: Notification could not be sent.")
+            sys.exit(1)
