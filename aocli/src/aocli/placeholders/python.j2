@@ -1,0 +1,24 @@
+"""{{title}} ({{url}})
+Code for solving part {{part_word}}.
+"""
+
+import pathlib
+import typing
+
+
+def solve(path: str) -> typing.Any:
+    """Solve puzzle {{day}}-{{part}}.
+
+    Arguments:
+        - path: path to input.
+
+    Returns:
+        The solution.
+    """
+    text = pathlib.Path(path).read_text(encoding="utf-8")
+    return text
+
+
+if __name__ == "__main__":
+    print("example:", solve("{{day}}/example{{day}}_{{part}}.txt"))
+    print("input:", solve("{{day}}/input{{day}}.txt"))

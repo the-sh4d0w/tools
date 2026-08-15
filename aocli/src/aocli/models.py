@@ -14,6 +14,6 @@ class CodePlaceholder(pydantic.BaseModel):
 class Config(pydantic.BaseModel):
     """Model for config."""
     domain: str
-    session_path: pathlib.Path
     user_agent: str
-    code_placeholders: list[CodePlaceholder]
+    session_path: pathlib.Path
+    placeholders_path: pathlib.Path
