@@ -111,19 +111,21 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
             PLACEHOLDER_PATH, encoding="utf-8"), keep_trailing_newline=True)
         puzzle_text: str = environment.get_template(
             f"{language}.j2").render(format_values)
-        # check if folder already exists or if we want to override
-        if not pathlib.Path(f"{day:02}").exists() or force:
-            pathlib.Path(f"{day:02}").mkdir(exist_ok=True)
-            pathlib.Path(f"{day:02}/puzzle{day:02}_{part}.py").write_text(
-                puzzle_text, encoding="utf-8")
-            pathlib.Path(f"{day:02}/example{day:02}_{part}.txt").write_text(
-                data=examples[part - 1 if len(examples) != 1 else 0], encoding="utf-8")
-            pathlib.Path(f"{day:02}/input{day:02}.txt").write_text(
-                data=input_text, encoding="utf-8")
+        pathlib.Path(f"{day:02}").mkdir(exist_ok=True)
+        # check if (relevant) files already exists or if we want to override
+        puzzle_file = pathlib.Path(f"{day:02}/puzzle{day:02}_{part}.py")
+        example_file = pathlib.Path(f"{day:02}/example{day:02}_{part}.txt")
+        if (not puzzle_file.exists() and not example_file.exists()) or force:
+            puzzle_file.write_text(puzzle_text, encoding="utf-8")
+            example_file.write_text(data=examples[part - 1 if len(examples) != 1 else 0],
+                                    encoding="utf-8")
+            pathlib.Path(f"{day:02}/input{day:02}.txt").write_text(data=input_text,
+                                                                   encoding="utf-8")
             CONSOLE.print("Created folders and files in "
                           f"{time.monotonic() - start_time:.2}s.")
         else:
-            CONSOLE.print(f"[red]Error[/]: Folder {day:02} already exists.")
+            CONSOLE.print(f"[red]Error[/]: File(s) {puzzle_file} and/or {example_file} "
+                          "already exist(s).")
             sys.exit(1)
 
     # send notification
