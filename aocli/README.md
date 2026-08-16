@@ -15,3 +15,15 @@ Updates are also done through uv (⚠be warned, this will reset the config):
 ```bash
 uv tool upgrade aocli
 ```
+
+## Authentication with Advent of Code
+
+The tool needs to authenticate itself with the Advent of Code to perform some of its functionality
+(`setup` and `submit`). This is handled through an authentication token expected in the file `session.cookie` in the directory the tool is executed in (the path can be changed in the config).
+The auth token can be retrieved by logging into the website and copying the value of the cookie
+`session`.
+
+I would suggest putting the path to the `session.cookie` file in your `.gitignore` so you can't
+accidentally commit it to a (public) repository. Anyone who has the auth token can (for the year
+or so it is valid) access your Advent of Code account. Also, please feel free to review the source
+code before using the tool, if you don't want to trust me blindly.

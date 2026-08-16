@@ -14,7 +14,11 @@ import requests
 from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH, AOC_DOMAIN
 
 
-@click.command(context_settings={"show_default": True})
+class DayNotAvailableError(Exception):
+    """Day not available error."""
+
+
+@click.command()
 @click.option("--day", "-d", type=click.IntRange(0, 25), default=TODAY.day,
               help="Day of Advent of Code.")
 @click.option("--year", "-y", type=click.IntRange(2015, TODAY.year), default=TODAY.year,
@@ -44,14 +48,13 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
             time.sleep((datetime.datetime(year, 12, day, 6)
                         - datetime.datetime.now()).total_seconds() + 30)
 
-    file = pathlib.Path(CONFIG.session_path)
-    # exit if session cookie file doesn't exist
-    if not file.exists():
+    # check if session file exists
+    if not (session_file := pathlib.Path(CONFIG.session_path)).exists():
         CONSOLE.print(f"[red]Error[/]: The file '{CONFIG.session_path}' "
                       "does not exist.")
         sys.exit(1)
     # get session token
-    session = file.read_text(encoding="utf-8").strip()
+    session = session_file.read_text(encoding="utf-8").strip()
 
     try:
         start_time = time.monotonic()
@@ -68,10 +71,10 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                     case 200:
                         pass
                     case _:
-                        raise FileNotFoundError
+                        raise DayNotAvailableError
         CONSOLE.print(f"Downloaded AoC day {day:02} "
                       f"in {time.monotonic() - start_time:.2}s.")
-    except FileNotFoundError:
+    except DayNotAvailableError:
         CONSOLE.print(f"[red]Error[/]: Day {day} is not (yet) available.")
         if year >= 2025 and day > 12:
             CONSOLE.print("[cyan]Hint[/]: Since 2025 only 12 days are "

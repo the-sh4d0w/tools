@@ -9,21 +9,20 @@ import rich_click as click
 from aocli import CONFIG, CONSOLE, AOC_DOMAIN
 
 
-@click.command(context_settings={"show_default": True})
+@click.command()
 @click.argument("year", type=int, required=True, help="Year to submit for.")
 @click.argument("day", type=int, required=True, help="Day to submit for.")
 @click.argument("part", type=click.IntRange(1, 2), required=True, help="Part to submit for.")
 @click.argument("answer", type=str, required=True, help="Answer to submit.")
 def submit(year: int, day: int, part: int, answer: str) -> None:
     """Submit a puzzle answer."""
-    file = pathlib.Path(CONFIG.session_path)
-    # exit if session cookie file doesn't exist
-    if not file.exists():
+    # check if session file exists
+    if not (session_file := pathlib.Path(CONFIG.session_path)).exists():
         CONSOLE.print(f"[red]Error[/]: The file '{CONFIG.session_path}' "
                       "does not exist.")
         sys.exit(1)
     # get session token
-    session = file.read_text(encoding="utf-8").strip()
+    session = session_file.read_text(encoding="utf-8").strip()
 
     with requests.Session() as sess:
         # set session token
