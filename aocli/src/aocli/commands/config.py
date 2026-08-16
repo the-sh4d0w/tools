@@ -7,7 +7,7 @@ import rich_click as click
 from aocli import CONFIG, CONSOLE
 
 
-@click.group()
+@click.group(context_settings={"show_default": True})
 def config() -> None:
     """Configure the tool."""
 

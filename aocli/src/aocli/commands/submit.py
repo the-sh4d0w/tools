@@ -9,7 +9,7 @@ import rich_click as click
 from aocli import CONFIG, CONSOLE, AOC_DOMAIN
 
 
-@click.command()
+@click.command(context_settings={"show_default": True})
 @click.argument("year", type=int, required=True, help="Year to submit for.")
 @click.argument("day", type=int, required=True, help="Day to submit for.")
 @click.argument("part", type=click.IntRange(1, 2), required=True, help="Part to submit for.")

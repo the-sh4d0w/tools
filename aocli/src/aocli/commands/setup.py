@@ -14,7 +14,7 @@ import requests
 from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH, AOC_DOMAIN
 
 
-@click.command()
+@click.command(context_settings={"show_default": True})
 @click.option("--day", "-d", type=click.IntRange(0, 25), default=TODAY.day,
               help="Day of Advent of Code.")
 @click.option("--year", "-y", type=click.IntRange(2015, TODAY.year), default=TODAY.year,
@@ -85,7 +85,7 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
             "h2")).text.replace("-", "").strip()
         examples = [typing.cast(bs4.Tag, pre.find("code")).text.strip()
                     for pre in soup.find_all("pre")]
-        input_text = sess.get(f"{url}/input").text.strip()
+        input_text = sess.get(f"{AOC_DOMAIN}/input").text.strip()
 
         # exit with error if part two is not available
         if part == 2 and not "Part Two" in response.text:
@@ -99,7 +99,7 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
         # setup folder and files
         format_values: dict[str, str | int] = {
             "title": title,
-            "url": url + ("#part2" if part == 2 else ""),
+            "url": AOC_DOMAIN + ("#part2" if part == 2 else ""),
             "part_word": "one" if part == 1 else "two",
             "day": f"{day:02}",
             "part": part
