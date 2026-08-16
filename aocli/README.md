@@ -1,6 +1,6 @@
 ![Python versions](https://img.shields.io/badge/Python-3.14-blue)
 ![OS support](https://img.shields.io/badge/OS-Windows_Linux_macOS-red)
-![Tool version](https://img.shields.io/badge/Version-0.4.3-green)
+![Tool version](https://img.shields.io/badge/Version-0.4.4-green)
 
 # AoCLI
 Manage Advent of Code puzzles.
