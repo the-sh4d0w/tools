@@ -7,6 +7,7 @@ import rich_click as click
 from aocli import PROJECT_NAME, CONFIG
 from aocli.commands import config
 from aocli.commands import setup
+from aocli.commands import submit
 
 
 def project_version(project_name: str) -> str | None:
@@ -26,3 +27,4 @@ def main() -> None:
 
 main.add_command(setup.setup)
 main.add_command(config.config)
+main.add_command(submit.submit)

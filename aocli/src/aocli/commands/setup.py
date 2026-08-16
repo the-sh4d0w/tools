@@ -11,7 +11,7 @@ import jinja2
 import rich_click as click
 import requests
 
-from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH
+from aocli import TODAY, CONFIG, CONSOLE, PLACEHOLDER_PATH, AOC_DOMAIN
 
 
 @click.command()
@@ -43,17 +43,14 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                 f"{datetime.datetime(year, 12, day, 6).astimezone().isoformat()}[/]..."):
             time.sleep((datetime.datetime(year, 12, day, 6)
                         - datetime.datetime.now()).total_seconds() + 30)
-    url = f"https://{CONFIG.domain.replace("https://", "").replace("http://", "")}" \
-        f"/{year}/day/{day}"
-    file = pathlib.Path(CONFIG.session_path)
 
+    file = pathlib.Path(CONFIG.session_path)
     # exit if session cookie file doesn't exist
     if not file.exists():
         CONSOLE.print(f"[red]Error[/]: The file '{CONFIG.session_path}' "
                       "does not exist.")
-        return
-
-    # get session token; FIXME:
+        sys.exit(1)
+    # get session token
     session = file.read_text(encoding="utf-8").strip()
 
     try:
@@ -64,7 +61,9 @@ def setup(day: int, year: int, part: int, language: str, wait: bool, notify: boo
                 # set session token
                 sess.cookies.set(name="session", value=session,
                                  domain=CONFIG.domain)
-                response = sess.get(url)
+                response: requests.Response = sess.get(
+                    url=f"{AOC_DOMAIN}/{year}/day/{day}",
+                    headers={"User-Agent": CONFIG.user_agent})
                 match response.status_code:
                     case 200:
                         pass
