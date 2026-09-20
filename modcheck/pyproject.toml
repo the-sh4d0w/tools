@@ -1,0 +1,28 @@
+[project]
+name = "modcheck"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Sh4d0w", email = "benjamin_gaertner@gmx.net" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "click>=8.5.0",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+modcheck = "modcheck.main:main"
+
+[build-system]
+requires = ["uv_build>=0.9.30,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "autopep8>=2.3.2",
+    "isort>=9.0.1",
+]
