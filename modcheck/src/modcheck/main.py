@@ -43,10 +43,11 @@ def main(collection: str, mc_version: str, loader: typing.Optional[str]) -> None
                   f"[yellow]{mod_amount}[/] mods.")
 
     # iterate through mods and get API info
-    for mod_link in rich.progress.track(soup.select(
+    blues: list[str] = ["blue", "blue1"]
+    for num, mod_link in enumerate(rich.progress.track(soup.select(
             "div > a.rounded-xl.no-outline.no-click-animation.custom-focus-indicator"),
             description=f"Checking if mods are available for [yellow]{mc_version}[/]...",
-            transient=True, console=console):
+            transient=True, console=console)):
         mod_slug: str = typing.cast(str, mod_link.get("href")).split("/")[-1]
         data = requests.get(f"https://api.modrinth.com/v2/project/{mod_slug}",
                             timeout=10).json()
@@ -54,7 +55,7 @@ def main(collection: str, mc_version: str, loader: typing.Optional[str]) -> None
             and (loader is None or loader in data["loaders"])
         status: str = "✔" if available else "❌"
         available_count += available
-        console.print(f"[blue]{data["title"]}[/]"
+        console.print(f"[{blues[num % 2]}]{data["title"]}[/]"
                       f"{status:>{(console.width-len(data["title"])-1)}}")
 
     loader_text: str = "" if loader is None else f" and loader [bright_cyan]{loader}[/]"

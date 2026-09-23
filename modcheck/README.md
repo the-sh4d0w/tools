@@ -1,6 +1,6 @@
 ![Python versions](https://img.shields.io/badge/Python-3.14-blue)
 ![OS support](https://img.shields.io/badge/OS-Windows_Linux_macOS-red)
-![Tool version](https://img.shields.io/badge/Version-0.1.0-green)
+![Tool version](https://img.shields.io/badge/Version-0.1.1-green)
 
 # Modcheck
 Check if mods in a Modrinth collection is available for a version of Minecraft.
