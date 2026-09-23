@@ -43,7 +43,7 @@ def main(collection: str, mc_version: str, loader: typing.Optional[str]) -> None
                   f"[yellow]{mod_amount}[/] mods.")
 
     # iterate through mods and get API info
-    blues: list[str] = ["blue", "blue1"]
+    blues: list[str] = ["white", "bright_white"]
     for num, mod_link in enumerate(rich.progress.track(soup.select(
             "div > a.rounded-xl.no-outline.no-click-animation.custom-focus-indicator"),
             description=f"Checking if mods are available for [yellow]{mc_version}[/]...",
